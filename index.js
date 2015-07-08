@@ -5,6 +5,8 @@ var debug = require('debug')('meshblu-lumencache')
 var serialport = require("serialport");
 var SerialPort = serialport.SerialPort;
 
+
+
 var MESSAGE_SCHEMA = {
   type: 'object',
   properties: {
@@ -89,7 +91,7 @@ Plugin.prototype.onMessage = function(message){
 
       // Write command to serial port
 
-      self.serialPort.write(command, function(err, results) {
+      this.serialPort.write(command, function(err, results) {
     console.log('err ' + err);
     console.log('results ' + results);
   });
@@ -101,10 +103,8 @@ Plugin.prototype.onConfig = function(device){
   self.setOptions(device.options||{});
 
   if(!this.options || !this.options.port){
-    var error = new Error('port field is required'); 
-    console.error(error); 
-
-  }
+    console.log("need port");
+  }else{
 
   var serialOptions = {
     baudrate : self.options.baud || 57600
@@ -125,6 +125,8 @@ Plugin.prototype.onConfig = function(device){
       self.serialPort.flush(); 
     });
   });
+
+}
 };
 
 Plugin.prototype.setOptions = function(options){
