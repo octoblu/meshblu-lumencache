@@ -32,14 +32,6 @@ var OPTIONS_SCHEMA = {
     port: {
       type: 'string',
       required: true
-    },
-    baud: {
-      type: 'integer',
-      required: true,
-      enum : [115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75,50]
-    }, 
-    delimiter : {
-      type : 'string'
     }
   }
 };
@@ -107,7 +99,7 @@ Plugin.prototype.onConfig = function(device){
   }else{
 
   var serialOptions = {
-    baudrate : self.options.baud || 57600
+    baudrate : 38400
   }; 
 
   self.serialPort = new SerialPort(this.options.port,serialOptions);
