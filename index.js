@@ -2,6 +2,8 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var debug = require('debug')('meshblu-lumencache')
+var serialport = require("serialport");
+var SerialPort = serialport.SerialPort;
 
 var MESSAGE_SCHEMA = {
   type: 'object',
@@ -25,9 +27,17 @@ var MESSAGE_SCHEMA = {
 var OPTIONS_SCHEMA = {
   type: 'object',
   properties: {
-    firstExampleOption: {
+    port: {
       type: 'string',
       required: true
+    },
+    baud: {
+      type: 'integer',
+      required: true,
+      enum : [115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75,50]
+    }, 
+    delimiter : {
+      type : 'string'
     }
   }
 };
@@ -45,6 +55,8 @@ Plugin.prototype.onMessage = function(message){
  // this.emit('message', {devices: ['*'], topic: 'echo', payload: payload});
 
  var command;
+
+  // Use the specified action, id, and/or value to build the command string
 
   switch(payload.Action){
     case "Set_Level":
@@ -75,10 +87,44 @@ Plugin.prototype.onMessage = function(message){
 
       }
 
+      // Write command to serial port
+
+      self.serialPort.write(command, function(err, results) {
+    console.log('err ' + err);
+    console.log('results ' + results);
+  });
+
 };
 
 Plugin.prototype.onConfig = function(device){
-  this.setOptions(device.options||{});
+  var self = this;
+  self.setOptions(device.options||{});
+
+  if(!this.options || !this.options.port){
+    var error = new Error('port field is required'); 
+    console.error(error); 
+
+  }
+
+  var serialOptions = {
+    baudrate : self.options.baud || 57600
+  }; 
+
+  self.serialPort = new SerialPort(this.options.port,serialOptions);
+
+  self.serialPort.on("open", function () {
+    self.serialPort.on('data', function(data) {
+      console.log('data received: ' + data);
+      self.emit("message", {
+        devices: ['*'], 
+        "payload": {
+          "serial_in" : data.toString()
+        } 
+      });
+      
+      self.serialPort.flush(); 
+    });
+  });
 };
 
 Plugin.prototype.setOptions = function(options){

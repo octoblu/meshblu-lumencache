@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "meshblu": "^1.22.0",
+    "serialport" : "*",
     "debug": "^2.1.0"
   },
   "bundledDependencies": [
