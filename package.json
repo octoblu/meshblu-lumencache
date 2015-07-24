@@ -1,7 +1,7 @@
 {
   "name": "meshblu-lumencache",
   "repository": "octoblu/meshblu-lumencache",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "connector.js",
   "scripts": {
     "preinstall": "node -e \"try{require('./skip-install.js')}catch(e){}\"",
@@ -9,9 +9,9 @@
     "test": "exit 0"
   },
   "dependencies": {
-    "meshblu": "^1.22.0",
-    "serialport" : "*",
-    "debug": "^2.1.0"
+    "debug": "^2.1.0",
+    "meshblu": "^1.30.0",
+    "serialport": "*"
   },
   "bundledDependencies": [
     "request",
