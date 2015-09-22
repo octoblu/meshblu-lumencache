@@ -1,24 +1,86 @@
-# meshblu-lumencache
+## meshblu-lumencache
 
-##How to use stand alone
+[![Build Status](https://travis-ci.org/octoblu/meshblu-lumencache.svg?branch=master)](https://travis-ci.org/octoblu/meshblu-lumencache)
+[![Code Climate](https://codeclimate.com/github/octoblu/meshblu-lumencache/badges/gpa.svg)](https://codeclimate.com/github/octoblu/meshblu-lumencache)
+[![Test Coverage](https://codeclimate.com/github/octoblu/meshblu-lumencache/badges/coverage.svg)](https://codeclimate.com/github/octoblu/meshblu-lumencache)
+[![npm version](https://badge.fury.io/js/meshblu-lumencache.svg)](http://badge.fury.io/js/meshblu-lumencache)
+[![Gitter](https://badges.gitter.im/octoblu/help.svg)](https://gitter.im/octoblu/help)
 
-1. Run "npm install meshblu-lumencache" or clone this repo and run "npm install"
-2. In Octoblu go to the "Connect" page and add a new "Generic Device" name it anything
-3. Go to -> Connect -> Configured Nodes
-4. Select your newly created device, keep this page open
-5. Open/create the meshblu.json in the directory where meshblu-lumencache is installed
-6. Copy the UUID/Token from the Generic Device page into the meshblu.json so it looks like the below
+A Meshblu connector for use in Octoblu or with other services.
 
+### Setup Instructions
+
+### Travis
+
+1. `gem install travis`
+1. `travis login`
+
+#### Travis (S3)
+
+For use if you need to push your browserified version
+
+1. `travis encrypt [S3_ACCESS_KEY_SECRET]`
+1. add the generated key to the .travis.yml file under `secret_access_key` in the s3 deploy section.
+1. also add the s3 `access_key_id` to the same section
+
+End result should look like this:
+
+```yml
+deploy:
+  - provider: s3
+    access_key_id: [S3_ACCESS_KEY]
+    secret_access_key:
+      secure: [S3_ACCESS_KEY_SECRET]
+    bucket: [UPLOAD_BUCKET] # octoblu-cdn
+    region: us-west-2
+    skip_cleanup: true
+    detect_encoding: true
+    local-dir: deploy
+    upload-dir: [UPLOAD_FOLDER] # js
+    on:
+      tags: true
+      all_branches: true
+      node: '0.10'
 ```
-{
-  "server" : "meshblu.octoblu.com",
-  "port"   : 80,
-  "uuid"   : "your-uuid",
-  "token"  : "your-token"
-}
 
+#### Travis (NPM Deploy)[http://docs.travis-ci.com/user/deployment/npm/]
+
+1. `travis encrypt [NPM_ACCESS_KEY]` - this key is found in `~/.npmrc`
+1. add the generated key to the .travis.yml file under `api_key` in the npm deploy section.
+1. also add the npm `email` to the same section
+
+End result should look like this:
+
+```yml
+deploy:
+  - provider: npm
+    skip_cleanup: true
+    clean_up: false
+    email: [NPM_EMAIL]
+    api_key:
+      secure: [NPM_ACCESS_KEY]
+    on:
+      tags: true
+      all_branches: true
+      node: '0.11'
 ```
 
-7. In the directory, type "npm start" in the terminal to start the plugin
-8. In the connect page for your device, set the port options for your serial connection
-9. In the Octoblu designer you should now be able to drop in your configured device and have all options available.
+### Usage
+
+#### Gateblu Installation
+
+Use (gateblu)[https://gateblu.octoblu.com/] to run this as a device.
+
+#### Manual Installation
+
+1. `npm install meshblu-util -g`
+1. `npm install meshblu-lumencache` or `git clone [GIT_URL]`
+1. go into connector folder
+1. `meshblu-util register -t device:meshblu-lumencache > meshblu.json`
+1. `meshblu-util claim`
+1. `npm start` or to start with debug `DEBUG='meshblu-lumencache*' npm start`
+
+
+### Platform Dependencies
+
+Edit the package.json to change the platformDependencies. This will show up when installing the connector in Octoblu and Gateblu.

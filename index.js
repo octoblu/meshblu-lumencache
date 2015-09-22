@@ -1,11 +1,9 @@
 'use strict';
-var util = require('util');
+var util         = require('util');
 var EventEmitter = require('events').EventEmitter;
-var debug = require('debug')('meshblu-lumencache')
-var serialport = require("serialport");
-var SerialPort = serialport.SerialPort;
-
-
+var debug        = require('debug')('meshblu-lumencache')
+var serialport   = require("serialport");
+var SerialPort   = serialport.SerialPort;
 
 var MESSAGE_SCHEMA = {
   type: 'object',
@@ -46,12 +44,7 @@ util.inherits(Plugin, EventEmitter);
 
 Plugin.prototype.onMessage = function(message){
   var payload = message.payload;
- // this.emit('message', {devices: ['*'], topic: 'echo', payload: payload});
-
- var command;
-
-  // Use the specified action, id, and/or value to build the command string
-
+  var command;
   switch(payload.Action){
     case "Set_Level":
         command = "[" + payload.id + "," + payload.value + "]";
@@ -77,48 +70,42 @@ Plugin.prototype.onMessage = function(message){
     case "Query_Hardware":
         command = "[" + payload.id + ",258]";
         break;
+  }
 
-
-      }
-
-      // Write command to serial port
-
-      this.serialPort.write(command, function(err, results) {
-    console.log('err ' + err);
-    console.log('results ' + results);
+  this.serialPort.write(command, function(err, results) {
+    debug('error ', err);
+    debug('results ', results);
   });
-
 };
 
 Plugin.prototype.onConfig = function(device){
   var self = this;
   self.setOptions(device.options||{});
 
-  if(!this.options || !this.options.port){
-    console.log("need port");
-  }else{
+  if(!self.options || !self.options.port){
+    console.error("needs port");
+    return;
+  }
 
   var serialOptions = {
     baudrate : 38400
-  }; 
+  };
 
   self.serialPort = new SerialPort(this.options.port,serialOptions);
 
   self.serialPort.on("open", function () {
     self.serialPort.on('data', function(data) {
-      console.log('data received: ' + data);
+      debug('data received: ' + data);
       self.emit("message", {
-        devices: ['*'], 
+        devices: ['*'],
         "payload": {
           "serial_in" : data.toString()
-        } 
+        }
       });
-      
-      self.serialPort.flush(); 
+
+      self.serialPort.flush();
     });
   });
-
-}
 };
 
 Plugin.prototype.setOptions = function(options){
